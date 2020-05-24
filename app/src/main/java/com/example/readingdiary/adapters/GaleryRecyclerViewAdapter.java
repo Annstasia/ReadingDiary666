@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.readingdiary.Classes.ImageClass;
+import com.example.readingdiary.Classes.SmallGaleryTransform;
 import com.example.readingdiary.R;
 import com.squareup.picasso.Picasso;
 
@@ -58,22 +59,13 @@ public class GaleryRecyclerViewAdapter extends RecyclerView.Adapter<GaleryRecycl
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
-//        String path = buttons.get(i);
-//        FileInputStream fileInputStream = openFileInput(path);
-//        Bitmap bitmap = BitmapFactory.decodeStream(fileInputStream);
-//        holder.textViewName.setText(uploadCurrent.getName());
         if (buttons.get(i).getType()==1){
-            Log.d("qwerty24", buttons.size()+"");
-            Log.d("qwerty23", buttons.get(i).toString());
-
-//        Display display = context.getResources().getDisplayMetrics()
             DisplayMetrics metricsB = context.getResources().getDisplayMetrics();
-//        display.getMetrics(metricsB);
             float size = metricsB.widthPixels / 3;
-
+            SmallGaleryTransform smallGaleryTransform = new SmallGaleryTransform(metricsB.widthPixels, metricsB.heightPixels);
             Picasso.get()
                     .load(buttons.get(i).getUri())
-                    .resize((int) size, (int) size)
+                    .transform(new SmallGaleryTransform(metricsB.widthPixels, metricsB.heightPixels))
                     .into(viewHolder.imageView);
         }
         else{

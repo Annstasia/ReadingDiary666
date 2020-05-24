@@ -132,20 +132,49 @@ public class GaleryFullViewActivity extends AppCompatActivity implements DeleteD
                             else if (!names.contains(l)){
                                 if (hashMap.get(key)==false){
                                     Log.d("qwerty31", "HI3");
-                                    names.add(l);
-                                    images.add(new ImageClass(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.no_image)));
-                                    adapter.notifyItemInserted(images.size()-1);
+//                                    names.add(l);
+//                                    images.add(new ImageClass(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.no_image)));
+//                                    adapter.notifyItemInserted(images.size()-1);
+                                    int index = -1;
+                                    for (int i = 0; i < names.size(); i++){
+                                        if (names.get(i) > l){
+                                            index = i;
+                                            break;
+                                        }
+                                    }
+                                    if (index==-1){
+                                        names.add(l);
+                                        images.add(new ImageClass(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.no_image)));
+                                        adapter.notifyItemInserted(images.size()-1);
+                                    }
+                                    else{
+                                        names.add(index, l);
+                                        images.add(index, new ImageClass(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.no_image)));
+                                        adapter.notifyItemInserted(index);
+                                    }
                                 }
                                 else{
                                     imageStorage.child(key).getDownloadUrl().
                                             addOnSuccessListener(new OnSuccessListener<Uri>() {
                                                 @Override
                                                 public void onSuccess(Uri uri) {
-                                                    Log.d("qwerty31", "HI4");
-                                                    Toast.makeText(getApplicationContext(), "uri ", Toast.LENGTH_LONG).show();
-                                                    names.add(l);
-                                                    images.add(new ImageClass(uri));
-                                                    adapter.notifyItemInserted(images.size()-1);
+                                                    int index = -1;
+                                                    for (int i = 0; i < names.size(); i++){
+                                                        if (names.get(i) > l){
+                                                            index = i;
+                                                            break;
+                                                        }
+                                                    }
+                                                    if (index==-1){
+                                                        names.add(l);
+                                                        images.add(new ImageClass(uri));
+                                                        adapter.notifyItemInserted(images.size()-1);
+                                                    }
+                                                    else{
+                                                        names.add(index, l);
+                                                        images.add(index, new ImageClass(uri));
+                                                        adapter.notifyItemInserted(index);
+                                                    }
                                                 }
                                             })
                                             .addOnFailureListener(new OnFailureListener() {

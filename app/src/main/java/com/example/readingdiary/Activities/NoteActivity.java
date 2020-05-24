@@ -137,6 +137,7 @@ public class NoteActivity extends AppCompatActivity {
                 if (data.getExtras().get("changed") != null)
                 {
                     changed = true;
+                    changedIntent();
                     select(id);
                 }
             }
@@ -280,60 +281,14 @@ public class NoteActivity extends AppCompatActivity {
                                     null
                             );
                         }
-
-
-
                     }
                 });
-//        String[] projection = {
-//                NoteTable._ID,
-//                NoteTable.COLUMN_PATH,
-//                NoteTable.COLUMN_AUTHOR,
-//                NoteTable.COLUMN_TITLE,
-//                NoteTable.COLUMN_COVER_IMAGE,
-//                NoteTable.COLUMN_RATING,
-//                NoteTable.COLUMN_GENRE,
-//                NoteTable.COLUMN_TIME,
-//                NoteTable.COLUMN_PLACE,
-//                NoteTable.COLUMN_SHORT_COMMENT
-//
-//        };
-//        Cursor cursor = sdb.query(
-//                NoteTable.TABLE_NAME,   // таблица
-//                projection,            // столбцы
-//                NoteTable._ID + " = ?",                  // столбцы для условия WHERE
-//                new String[] {id},                  // значения для условия WHERE
-//                null,                  // Don't group the rows
-//                null,                  // Don't filter by row groups
-//                null);
-//        try{
-//            int idColumnIndex = cursor.getColumnIndex(NoteTable._ID);
-//            int pathColumnIndex = cursor.getColumnIndex(NoteTable.COLUMN_PATH);
-//            int authorColumnIndex = cursor.getColumnIndex(NoteTable.COLUMN_AUTHOR);
-//            int titleColumnIndex = cursor.getColumnIndex(NoteTable.COLUMN_TITLE);
-//            int coverColumnIndex =  cursor.getColumnIndex(NoteTable.COLUMN_COVER_IMAGE);
-//            int ratingColumnIndex =  cursor.getColumnIndex(NoteTable.COLUMN_RATING);
-//            int genreColumnIndex =  cursor.getColumnIndex(NoteTable.COLUMN_GENRE);
-//            int timeColumnIndex =  cursor.getColumnIndex(NoteTable.COLUMN_TIME);
-//            int placeColumnIndex =  cursor.getColumnIndex(NoteTable.COLUMN_PLACE);
-//            int shortCommentIndex =  cursor.getColumnIndex(NoteTable.COLUMN_SHORT_COMMENT);
-//
-//            while (cursor.moveToNext()) {
-//                setViews(cursor.getString(pathColumnIndex), cursor.getString(authorColumnIndex),
-//                        cursor.getString(titleColumnIndex), cursor.getString(ratingColumnIndex),
-//                        cursor.getString(genreColumnIndex), cursor.getString(timeColumnIndex),
-//                        cursor.getString(placeColumnIndex), cursor.getString(shortCommentIndex),
-//                        cursor.getString(coverColumnIndex));
-//            }
-//        }
-//        finally{
-//            cursor.close();
-//        }
     }
 
     private void changedIntent(){
         Intent returnIntent = new Intent();
         returnIntent.putExtra("path", path);
+        returnIntent.putExtra("id", id);
         setResult(RESULT_OK, returnIntent);
         Log.d("qwertyu", "changeIntent");
     }

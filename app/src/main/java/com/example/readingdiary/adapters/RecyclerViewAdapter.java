@@ -18,6 +18,7 @@ import com.example.readingdiary.Classes.Note;
 import com.example.readingdiary.R;
 import com.example.readingdiary.Classes.RealNote;
 import com.google.android.material.card.MaterialCardView;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,9 +48,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         this.actionMode = false;
     }
 
-    /**
-     * Создание новых View и ViewHolder элемента списка, которые впоследствии могут переиспользоваться.
-     */
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View v;
@@ -64,9 +63,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return vh;
     }
 
-    /**
-     * Заполнение виджетов View данными из элемента списка с номером i
-     */
+
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
         int type = getItemViewType(i);
@@ -84,29 +81,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             viewHolder.author.setText(realNote.getAuthor());
             viewHolder.title.setText(realNote.getTitle());
             viewHolder.ratingBar.setRating((float)realNote.getRating());
-//            if (actionMode == false){
-//                viewHolder.checkBox.setVisibility(View.GONE);
-//            }
-//            else{
-//                viewHolder.checkBox.setVisibility(View.VISIBLE);
-//                viewHolder.checkBox.setChecked(false);
-//            }
-            if (!realNote.getCoverPath().equals("")){
+            if (realNote.getCoverUri() !=null){
+                Picasso.get().load(realNote.getCoverUri()).into(viewHolder.cover);
                 // TODO
             }
         }
         if (type == TYPE_ITEM2){
             Directory directory = (Directory) notes.get(i);
-            viewHolder.path2.setText(directory.getDirectory());
+            String[] dir = directory.getDirectory().split("/");
+            viewHolder.path2.setText(dir[dir.length-1]);
         }
-
-//
-//
-//        Note note = notes.get(i);
-//        viewHolder.path.setText(note.getPath());
-//        viewHolder.title.setText(note.getTitle());
-//        viewHolder.author.setText(note.getAuthor());
-
     }
 
     @Override

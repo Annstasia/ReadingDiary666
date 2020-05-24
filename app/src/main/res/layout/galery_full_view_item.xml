@@ -23,7 +23,7 @@
         <ImageView
             android:id="@+id/galery_image_el1"
             android:layout_width="match_parent"
-            android:layout_height="620dp" />
+            android:layout_height="match_parent" />
 
     </LinearLayout>
 

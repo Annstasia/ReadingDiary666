@@ -1,11 +1,5 @@
 package com.example.readingdiary.adapters;
 
-//package com.example.galeryproject;
-
-//package com.example.readingdiary;
-
-//package com.example.readingdiary;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,7 +16,7 @@ import com.example.readingdiary.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
-// Адаптер поолнога показа изображений
+// Адаптер полного показа изображений
 public class GaleryFullViewAdapter extends RecyclerView.Adapter<GaleryFullViewAdapter.ViewHolder>{
 
     private List<ImageClass> buttons;
@@ -53,27 +47,14 @@ public class GaleryFullViewAdapter extends RecyclerView.Adapter<GaleryFullViewAd
 
     }
 
-    /**
-     * Создание новых View и ViewHolder элемента списка, которые впоследствии могут переиспользоваться.
-     */
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View v;
         v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.galery_full_view_item, viewGroup, false);
         ViewHolder vh = new ViewHolder(v);
         Log.d("BUTTONS", "2");
-//        v.setOnClickListener(this);
         return vh;
     }
-
-    /**
-     * Заполнение виджетов View данными из элемента списка с номером i
-     */
-//    private void removeAt(int position) {
-//        buttons.remove(position);
-//        notifyItemRemoved(position);
-//        notifyItemRangeChanged(position, buttons.size());
-//    }
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
@@ -121,9 +102,6 @@ public class GaleryFullViewAdapter extends RecyclerView.Adapter<GaleryFullViewAd
         notifyDataSetChanged();
     }
 
-    /**
-     * Реализация класса ViewHolder, хранящего ссылки на виджеты.
-     */
 
     class ViewHolder extends RecyclerView.ViewHolder {
         //        private TextView path1;

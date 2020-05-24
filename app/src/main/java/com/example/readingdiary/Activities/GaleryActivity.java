@@ -123,9 +123,23 @@ public class GaleryActivity extends AppCompatActivity {
                             }
                             else if (!names.contains(l)){
                                 if (hashMap.get(key)==false){
-                                    names.add(l);
-                                    images.add(new ImageClass(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.no_image)));
-                                    adapter.notifyItemInserted(images.size()-1);
+                                    int index = -1;
+                                    for (int i = 0; i < names.size(); i++){
+                                        if (names.get(i) > l){
+                                            index = i;
+                                            break;
+                                        }
+                                    }
+                                    if (index==-1){
+                                        names.add(l);
+                                        images.add(new ImageClass(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.no_image)));
+                                        adapter.notifyItemInserted(images.size()-1);
+                                    }
+                                    else{
+                                        names.add(index, l);
+                                        images.add(index, new ImageClass(BitmapFactory.decodeResource(getApplicationContext().getResources(), R.drawable.no_image)));
+                                        adapter.notifyItemInserted(index);
+                                    }
                                 }
                                 else{
                                     imageStorage.child(key).getDownloadUrl().
@@ -133,9 +147,23 @@ public class GaleryActivity extends AppCompatActivity {
                                                 @Override
                                                 public void onSuccess(Uri uri) {
                                                     Toast.makeText(getApplicationContext(), "uri ", Toast.LENGTH_LONG).show();
-                                                    names.add(l);
-                                                    images.add(new ImageClass(uri));
-                                                    adapter.notifyItemInserted(images.size()-1);
+                                                    int index = -1;
+                                                    for (int i = 0; i < names.size(); i++){
+                                                        if (names.get(i) > l){
+                                                            index = i;
+                                                            break;
+                                                        }
+                                                    }
+                                                    if (index==-1){
+                                                        names.add(l);
+                                                        images.add(new ImageClass(uri));
+                                                        adapter.notifyItemInserted(images.size()-1);
+                                                    }
+                                                    else{
+                                                        names.add(index, l);
+                                                        images.add(index, new ImageClass(uri));
+                                                        adapter.notifyItemInserted(index);
+                                                    }
                                                 }
                                             })
                                             .addOnFailureListener(new OnFailureListener() {
@@ -148,69 +176,9 @@ public class GaleryActivity extends AppCompatActivity {
                             }
                         }
                     }
-
                 }
-
-
             }
         });
-//        imagePathsDoc.get()
-//                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-//                        names = (ArrayList) documentSnapshot.get("Paths");
-//                        if (names != null){
-//                            for (long i : names){
-//                                imageStorage.child(i+"").getDownloadUrl()
-//                                        .addOnSuccessListener(new OnSuccessListener<Uri>() {
-//                                            @Override
-//                                            public void onSuccess(Uri uri) {
-//                                                images.add(new ImageClass(uri));
-////                                                adapter = new GaleryRecyclerViewAdapter(images, getApplicationContext());
-////                                                galeryView.setAdapter(adapter);
-//                                                adapter.notifyItemInserted(images.size()-1);
-//                                            }
-//                                        })
-//                                        .addOnFailureListener(new OnFailureListener() {
-//                                            @Override
-//                                            public void onFailure(@NonNull Exception e) {
-//                                                Log.e("qwerty26", e.toString());
-//                                            }
-//                                        });
-////                                adapter.notifyDataSetChanged();
-//                            }
-//                        }
-//                        else{
-//                            Log.d("qwerty25", "null!!!");
-//                        }
-//
-////                        adapter = new GaleryRecyclerViewAdapter(images, getApplicationContext());
-////                        galeryView.setAdapter(adapter);
-//                        // Ускорить загрузку
-//                        // Сделать норм добавление
-//                        // Посмотреть как сломала пути
-//                        // Добавить удаление
-//                    }
-////                    adapter = new GaleryRecyclerViewAdapter(images, getApplicationContext());
-////                    galeryView.setAdapter(adapter);
-//
-//
-//                });
-
-//        FireStorageTFirebaseStorage.getInstance().getReference(user).child("Images");
-//        File fileDir1 = getApplicationContext().getDir(getResources().getString(R.string.imagesDir) + File.pathSeparator + id, MODE_PRIVATE); // путь к папке с изображениями
-//        File[] files = fileDir1.listFiles(); // список файлов в папке
-//        if (files != null){
-//            for (int i = 0; i < files.length; i++){
-//                images.add(BitmapFactory.decodeFile(files[i].getAbsolutePath()));
-//                names.add(files[i].getAbsolutePath());
-//            }
-//        }
-
-
-
-
-        // при нажатии на изображение переходим в активность с полным изображением
         adapter.setOnItemClickListener(new GaleryRecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
@@ -218,16 +186,10 @@ public class GaleryActivity extends AppCompatActivity {
                 intent.putExtra("id", id);
                 intent.putExtra("position", position);
                 startActivityForResult(intent, FULL_GALERY_CODE);
-
             }
         });
 
-
-
-
         Button pickImage = (Button) findViewById(R.id.button);
-
-        // Выбор изображений из галереи
         pickImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -330,16 +292,39 @@ public class GaleryActivity extends AppCompatActivity {
         }
 
         else if (requestCode == FULL_GALERY_CODE) {
-            Log.d("DELETEIMAGE1", "request");
+            Log.d("DELETEIMAGE123", "request");
 
             // Вернулись из показа полных изображений. Если там удалили изображение, то меняем список имен и изображений
             if (resultCode == RESULT_OK) {
-//                List<Integer> index = new ArrayList<>();
+
+                imagePathsDoc.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot != null){
+                            List<Integer> index = new ArrayList<>();
+                            HashMap<String, Boolean> map = (HashMap) documentSnapshot.getData();
+                            if (map!=null){
+                                for (int i = 0; i < names.size(); i++) {
+                                    if (!map.containsKey(names.get(i).toString())){
+                                        index.add(i);
+                                    }
+                                }
+                                int minus = 0;
+                                for (int i : index) {
+                                    names.remove(i - minus);
+                                    images.remove(i - minus);
+                                    adapter.notifyItemRemoved(i - minus);
+                                    minus++;
+                                }
+                            }
+                        }
+                    }
+                });
 //                for (int i = 0; i < names.size(); i++) {
 //                    if (!(new File(names.get(i)).exists())) {
-//                        index.add(i);
-//                    }
-//                }
+////                        index.add(i);
+////                    }
+////                }
 //
 //                int minus = 0;
 //                for (int i : index) {

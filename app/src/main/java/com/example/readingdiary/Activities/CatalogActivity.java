@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -30,6 +31,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.readingdiary.Classes.DeleteFilesClass;
+import com.example.readingdiary.Classes.DeleteNote;
 import com.example.readingdiary.Classes.Directory;
 import com.example.readingdiary.Classes.Note;
 import com.example.readingdiary.Classes.RealNote;
@@ -43,6 +45,7 @@ import com.example.readingdiary.data.LiteratureContract.NoteTable;
 import com.example.readingdiary.data.OpenHelper;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -91,6 +94,7 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
     public boolean action_mode = false;
     int count=0;
     int menuType = 0;
+    long active;
     ArrayList<RealNote> selectionRealNotesList = new ArrayList<>();
     ArrayList<Directory> selectionDirectoriesList = new ArrayList<>();
     String[] choices = new String[]{"Сортировка по названиям в лексикографическом порядке",
@@ -103,6 +107,7 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
     private String user = "user0";
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,33 +117,21 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
 //        Получение разрешений на чтение и запись
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
-            Log.v("FILE3", "Permission is granted");
 
         } else {
-            Log.v("FILE3", "Permission is revoked");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
         }
         if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED) {
-            Log.v("FILE3", "Permission is granted");
 
         } else {
-
-            Log.v("FILE3", "Permission is revoked");
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-
         }
 
-
-
-//        dbHelper = new OpenHelper(this);
-//
-//        sdb = dbHelper.getReadableDatabase();
         notes = new ArrayList<Note>(); // список того, что будет отображаться в каталоге.
         buttons = new ArrayList<String>(); // Список пройденный каталогов до текущего
         setSortTitles();
-//        initSortsList();
         findViews();
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -172,7 +165,6 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN){
-//            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
             InputMethodManager imm = (InputMethodManager) getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(getWindow().getDecorView().getWindowToken(), 0);
         }
@@ -182,7 +174,6 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_catalog, menu);
         return true;
     }
@@ -192,23 +183,38 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("qwerty15", "OnActivityResult");
-        Log.d("qwerty15", "requestCode " + requestCode + " " + resultCode);
-
         if (data != null && requestCode == NOTE_REQUEST_CODE){
+//            Toast.makeText(getApplicationContext(), "! " + data.getExtras().get("id").toString(), 1).show();
             // если изменился путь до записи, добавилась новая запись, то переходим к этой записи
             if (data.getExtras().get("deleted") != null){
                 String id = data.getExtras().get("id").toString();
-                int index = deleteNote(id);
+                int index = -1;
+                for (int i = 0; i < notes.size(); i++){
+                    if (notes.get(i).getID().equals(id)){
+                        index = i;
+                        break;
+                    }
+                }
                 if (index != -1){
+                    notes.remove(index);
                     mAdapter.notifyItemRemoved(index);
                 }
+
             }
 
-            if (data.getExtras().get("path") != null){
-                parent = data.getExtras().get("path").toString().replace("\\", "/");
-                reloadRecyclerView();
-                reloadButtonsView();
+            else if (data.getExtras().get("path") != null){
+                if (parent.equals(data.getExtras().get("path").toString().replace("\\", "/"))){
+                    changeById(data.getExtras().get("id").toString());
+                }
+                else{
+                    parent = data.getExtras().get("path").toString().replace("\\", "/");
+                    reloadRecyclerView();
+                    reloadButtonsView();
+                }
+
+            }
+            else{
+                changeById(data.getExtras().get("id").toString());
             }
         }
 
@@ -216,11 +222,12 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
             Log.d("qwerty15", data.getExtras().get("deleted") + " ! " + data.getExtras().get("noNote") + " !");
             if ((data.getExtras().get("deleted") == null && data.getExtras().get("noNote") == null)){
                 Log.d("qwerty15", "hi");
-
                 Intent intent = new Intent(CatalogActivity.this, NoteActivity.class); // вызов активности записи
                 intent.putExtra("id", data.getExtras().get("id").toString()); // передаем id активности в бд, чтобы понять какую активность надо показывать
                 intent.putExtra("changed", "true");
+                insertById(data.getExtras().get("id").toString());
                 startActivityForResult(intent, NOTE_REQUEST_CODE);
+
             }
             else if (data.getExtras().get("noNote") != null){
                 parent = data.getExtras().get("path").toString();
@@ -322,35 +329,36 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
         return super.onOptionsItemSelected(item);
     }
 
-    public void deleteInStorage(String id, final String delEl){
-        final StorageReference storageReference = FirebaseStorage.getInstance().getReference(user).child(id);
-        db.collection("Common").document(user).collection(id).document(delEl).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        Map <String, Boolean> map = (HashMap) documentSnapshot.getData();
-//                            ArrayList<String> arrayList = (ArrayList<String>) documentSnapshot.get("Paths");
-                        if (map != null){
-                            for (String path : map.keySet()){
-                                storageReference.child(delEl).child(path).delete();
-//                                FirebaseStorage.getInstance().getReference(user).child(id)
-                            }
-                        }
-
-                    }
-                });
-        db.collection("Common").document(user).collection(id).document(delEl).delete();
-    }
+//    public void deleteInStorage(String id, final String delEl){
+//        final StorageReference storageReference = FirebaseStorage.getInstance().getReference(user).child(id);
+//        db.collection("Common").document(user).collection(id).document(delEl).get()
+//                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//                    @Override
+//                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+//                        Map <String, Boolean> map = (HashMap) documentSnapshot.getData();
+////                            ArrayList<String> arrayList = (ArrayList<String>) documentSnapshot.get("Paths");
+//                        if (map != null){
+//                            for (String path : map.keySet()){
+//                                storageReference.child(delEl).child(path).delete();
+////                                FirebaseStorage.getInstance().getReference(user).child(id)
+//                            }
+//                        }
+//
+//                    }
+//                });
+//        db.collection("Common").document(user).collection(id).document(delEl).delete();
+//    }
 
     public void deleteSelectedRealNote(){
         for (int i = 0; i < selectionRealNotesList.size(); i++){
             String id = selectionRealNotesList.get(i).getID();
             notes.remove(selectionRealNotesList.get(i));
-            db.collection("Notes").document(user).collection("userNotes").document(id).delete();
-            deleteInStorage(id, "Images");
-            deleteInStorage(id, "Comment");
-            deleteInStorage(id, "Description");
-            deleteInStorage(id, "Quotes");
+            DeleteNote.deleteNote(user, id);
+//            db.collection("Notes").document(user).collection("userNotes").document(id).delete();
+//            deleteInStorage(id, "Images");
+//            deleteInStorage(id, "Comment");
+//            deleteInStorage(id, "Description");
+//            deleteInStorage(id, "Quotes");
         }
         mAdapter.notifyDataSetChanged();
 
@@ -400,64 +408,21 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         if (queryDocumentSnapshots != null){
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-//                                Log.d("qwerty12", path1 + " "  + documentSnapshot.getId());
                                 deleteDirectory(documentSnapshot.getId());
-//                                ArrayList<String> list = (ArrayList) documentSnapshot.get("paths");
-//                                if (list != null){
-//                                    for (String i : list){
-//                                        Log.d("qwerty12", documentSnapshot.getId() + " list " + i);
-//                                        deleteDirectory(i);
-//                                    }
-//
-//                                }
-
                             }
                         }
                     }
                 });
-        db.collection("User").document(user).collection("paths").document(path1).delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(getApplicationContext(), "success", Toast.LENGTH_LONG).show();
-
-//                        Log.d("qwerty12", "Success " + path1);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e("qwerty12", e.toString());
-                    }
-                });
+        db.collection("User").document(user).collection("paths").document(path1).delete();
 
         db.collection("Notes").document(user).collection("userNotes").whereEqualTo("path", path1).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-
                         if (queryDocumentSnapshots != null){
-                            WriteBatch batch = db.batch();
-//                            File[] arr = new File[queryDocumentSnapshots.size()];
-                            int k = 0;
-
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-//                                db.document(documentSnapshot.getId()).delete();
-
-                                //            arr[k] = getApplicationContext().getDir(path + "/" + currentID, MODE_PRIVATE);
-//                                arr[k] = new File(dir0 + File.pathSeparator + documentSnapshot.getId());
-                                // Тут содержится pathSeparator, на что ide ругается
-//                                k++;
-                                deleteInStorage(documentSnapshot.getId(), "Images");
-                                deleteInStorage(documentSnapshot.getId(), "Comment");
-                                deleteInStorage(documentSnapshot.getId(), "Description");
-                                deleteInStorage(documentSnapshot.getId(), "Quotes");
-
-                                batch.delete(db.collection("Notes").document(user).collection("userNotes").document(documentSnapshot.getId()));
+                                DeleteNote.deleteNote(user, documentSnapshot.getId());
                             }
-                            batch.commit();
-//                            DeleteFilesClass deleteFilesClass = new DeleteFilesClass(arr);
-//                            deleteFilesClass.start();
                         }
 
                     }
@@ -467,67 +432,27 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
 
     }
 
-//    private void deleteFileDir(String path1, String id){
-//        File fileDir1 = getApplicationContext().getDir(path1 + File.pathSeparator + id, MODE_PRIVATE);
-//        if (!fileDir1.exists()) return;
-//
-//        File files1[] = fileDir1.listFiles();
-//        if (files1 != null){
-//            for (File file : files1){
-//                file.delete();
-//            }
-//        }
-//        fileDir1.delete();
-//    }
-
-    private int deleteNote(String id){
-        int index = -1;
-        for (int i = 0; i < notes.size(); i++){
-            if (notes.get(i).getID().equals(id)){
-                index = i;
-                break;
-            }
-        }
-        if (index != -1){
-            notes.remove(index);
-        }
-        db.collection("Notes").document(user).collection("userNotes").document(id).delete();
-        deleteInStorage(id, "Images");
-        deleteInStorage(id, "Comment");
-        deleteInStorage(id, "Description");
-        deleteInStorage(id, "Quotes");
-
-//        DeleteFilesClass deleteClass = new DeleteFilesClass(new File[]
-//                {
-//                        getApplicationContext().getDir(getResources().getString(R.string.imagesDir) + File.pathSeparator + id, MODE_PRIVATE),
-//                        getApplicationContext().getDir(getResources().getString(R.string.quoteDir) + File.pathSeparator + id, MODE_PRIVATE),
-//                        getApplicationContext().getDir(getResources().getString(R.string.descriptionDir) + File.pathSeparator + id, MODE_PRIVATE),
-//                        getApplicationContext().getDir(getResources().getString(R.string.commentDir) + File.pathSeparator + id, MODE_PRIVATE)
-//                });
-//        deleteClass.start();
-//        deleteFileDir(getResources().getString(R.string.imagesDir), id);
-//        deleteFileDir(getResources().getString(R.string.commentDir), id);
-//        deleteFileDir(getResources().getString(R.string.descriptionDir), id);
-//        deleteFileDir(getResources().getString(R.string.quoteDir), id);
-        return index;
-    }
-
     private void selectAll() {
         Toast.makeText(this, parent, Toast.LENGTH_LONG).show();
         final String par1 = parent.replace("/", "\\");
-        Log.d("qwerty11", par1);
+        final String par2 = parent;
+        final long old_active = active;
+
         db.collection("User").document(user).collection("paths").document(par1).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        Log.d("qwerty11", par1 + " child");
-                        Log.d("qwerty8", "onSuccess");
                         if (documentSnapshot != null){
-                            Log.d("qwerty11", "length " + par1);
                             ArrayList<String> list = (ArrayList<String>) documentSnapshot.get("paths");
-//                            Log.d("qwerty11", "length " + list.size());
                             if (list != null) {
                                 for (String i : list) {
+                                    if (active!=old_active){
+                                        break;
+                                    }
+                                    if (!par1.equals(parent.replace("/", "\\"))){
+                                        break;
+                                    }
+
                                     notes.add(new Directory(i, i.replace("\\", "/")));
                                 }
                             }
@@ -540,10 +465,12 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
                                     @Override
                                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                                         if (queryDocumentSnapshots != null){
-                                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                                HashMap<String, Object> map = (HashMap<String, Object>) documentSnapshot.getData();
-                                                notes.add(new RealNote(documentSnapshot.getId(), map.get("path").toString(),
-                                                        map.get("author").toString(), map.get("title").toString(), Double.valueOf(map.get("rating").toString())));
+                                            for (final QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                                if (active!=old_active){
+                                                    break;
+                                                }
+                                                final HashMap<String, Object> map = (HashMap<String, Object>) documentSnapshot.getData();
+                                                generateNote(documentSnapshot.getId(), -1);
                                             }
                                         }
                                         mAdapter.notifyDataSetChanged();
@@ -574,9 +501,7 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         if (queryDocumentSnapshots != null){
                             for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                HashMap<String, Object> map = (HashMap<String, Object>) documentSnapshot.getData();
-                                notes.add(new RealNote(documentSnapshot.getId(), map.get("path").toString(),
-                                        map.get("author").toString(), map.get("title").toString(), Double.valueOf(map.get("rating").toString())));
+                                generateNote(documentSnapshot.getId(), -1);
                             }
                         }
                         mAdapter.notifyDataSetChanged();
@@ -587,6 +512,75 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
                     public void onFailure(@NonNull Exception e) {
                         Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
                         Log.e("qwerty9", e.toString());
+                    }
+                });
+    }
+
+    private void changeById(final String id){
+        for (int j = startPos; j < notes.size(); j++){
+            final int i = j;
+            if (notes.get(i).getID().equals(id)){
+                generateNote(notes.get(i).getID(), i);
+                break;
+            }
+        }
+    }
+
+    private void insertById(final String id){
+        generateNote(id, -1);
+    }
+
+    public void generateNote(final String id, final int index){
+//        final RealNote realNote = new RealNote(id, "", "", "", 0);
+        db.collection("Notes").document(user).collection("userNotes").document(id).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        final HashMap<String, Object> map = (HashMap) documentSnapshot.getData();
+                        final RealNote realNote = new RealNote(id, map.get("path").toString(), map.get("author").toString(),
+                                map.get("title").toString(), Double.valueOf(map.get("rating").toString()));
+                        if (!map.get("imagePath").toString().equals("")){
+                            FirebaseStorage.getInstance().getReference(user).child(documentSnapshot.getId()).child("Images").child(map.get("imagePath").toString()).getDownloadUrl()
+                                    .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            realNote.setCoverPath(uri);
+                                            if (index == -1){
+                                                notes.add(realNote);
+                                                mAdapter.notifyItemInserted(notes.size()-1);
+                                            }
+                                            else{
+                                                notes.set(index, realNote);
+                                                mAdapter.notifyItemChanged(index);
+                                            }
+                                        }
+                                    })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    if (index == -1){
+                                        notes.add(realNote);
+                                        mAdapter.notifyItemInserted(notes.size()-1);
+                                    }
+                                    else{
+                                        notes.set(index, realNote);
+                                        mAdapter.notifyItemChanged(index);
+                                    }
+                                }
+                            });
+                        }
+                        else{
+                            if (index == -1){
+                                notes.add(realNote);
+                                mAdapter.notifyItemInserted(notes.size()-1);
+
+                            }
+                            else{
+                                notes.set(index, realNote);
+                                mAdapter.notifyItemChanged(index);
+                            }
+                        }
+
                     }
                 });
     }
@@ -680,6 +674,7 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
                     //Если изменит, то вернется intent, чтобы можно было изменить отображение каталогов
                 }
                 if (type == 1){
+                    active++;
                     Directory directory = (Directory) notes.get(position);
                     parent = directory.getDirectory(); // устанавливаем директорию, на которую нажали в качестве отправной
                     notes.clear();
@@ -748,6 +743,7 @@ public class CatalogActivity extends AppCompatActivity implements SortDialogFrag
         buttonAdapter.setOnItemClickListener(new CatalogButtonAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
+                active++;
                 parent = buttons.get(position);
                 reloadButtonsView();
                 reloadRecyclerView();
