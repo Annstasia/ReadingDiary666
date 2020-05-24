@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">ReadingDiary</string>
+    <string name="title_activity_add_note">AddNoteActivity</string>
+    <string name="imagesDir">image</string>
+    <string name="quoteDir">quote</string>
+    <string name="commentDir">comment</string>
+    <string name="descriptionDir">description</string>
+    <string name="saveDialogTitle">Изменения не сохранены</string>
+    <string name="saveDialogMessage">Сохранить изменения или не сохранять?</string>
+    <string name="saveDialogSaveButton">Сохранить</string>
+    <string name="saveDialogNotSaveButton">Не сохранять</string>
+    <string name="saveDialogReturnButton">Отмена</string>
+
+
+    <string name="deleteDialogTitle">Удалить выбранный элемент?</string>
+    <string name="deleteDialogMessage">Выбранный элемент нельзя будет восстановить.</string>
+    <string name="deleteDialogTitleNote">Удалить запись?</string>
+    <string name="deleteDialogMessageNote">Запись и все прикрепленные к ней элементы будут удалены.</string>
+    <string name="deleteDialogAcceptButton">Удалить</string>
+    <string name="deleteDialogCancelButton">Отмена</string>
+
+    <string name="createWithoutNoteDialogTitle">Невозможно создать запись</string>
+    <string name="createWithoutNoteDialogMessage">Невозможно создать запись с неуказанным автором и названием.
+    Будут созданы промежуточные каталоги без записи. Создать каталоги?</string>
+    <string name="createWithoutNoteDialogAcceptButton">Создать</string>
+    <string name="createWithoutNoteDialogCancelButton">Отмена</string>
+
+    <string name="deleteTitleAndAuthorDialogTitle">Невозможно изменить запись</string>
+    <string name="deleteTitleAndAuthorDialogMessage">Оба поля автора и названия не могут быть пустыми. Заполните поля.</string>
+    <string name="deleteTitleAndAuthorDialogButton">Заполнить</string>
+
+    <string name="setCoverDialogTitle">Подтвердите действие</string>
+    <string name="setCoverDialogMessage">Установить в выбранное изображение в качестве фона?</string>
+    <string name="setCoverDialogAcceptButton">Установить</string>
+    <string name="setCoverDialogCancelButton">Отмена</string>
+    <string name="title_activity_registration">Sign in</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+
+
+</resources>

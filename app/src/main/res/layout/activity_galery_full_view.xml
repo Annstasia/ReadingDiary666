@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Activities.GaleryFullViewActivity">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:paddingBottom="100dp"
+        android:id="@+id/galery_full_recycle_view"
+        />
+
+    <LinearLayout
+        android:id="@+id/full_view_button_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.5"
+        android:orientation="horizontal"
+        android:visibility="invisible">
+
+        <Button
+            android:id="@+id/deleteFullImageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Удалить" />
+
+        <Button
+            android:id="@+id/setAsCoverButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Установить на обложку" />
+    </LinearLayout>
+
+
+    <!--    <Button-->
+<!--        android:layout_alignParentStart="false"-->
+<!--        android:layout_alignParentBottom="true"-->
+<!--        android:id="@+id/deleteImageButton"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="delete"-->
+<!--        tools:layout_editor_absoluteX="131dp"-->
+<!--        tools:layout_editor_absoluteY="195dp" />-->
+
+</RelativeLayout>

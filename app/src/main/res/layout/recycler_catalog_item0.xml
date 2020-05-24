@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="120dp"
+    android:padding="10dp"
+    android:layout_margin="5dp"
+    android:id="@+id/catalogNoteCardView">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:scaleType="fitCenter"
+            android:id="@+id/catalogNoteImageView"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/catalogNoteImageView"
+            android:text="text"
+            android:layout_marginLeft="25dp"
+            android:textSize="22dp"
+            android:textStyle="bold"
+            android:id="@+id/catalogNoteTitleView"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/catalogNoteImageView"
+            android:text="text2"
+            android:layout_marginLeft="25dp"
+            android:textSize="13dp"
+            android:layout_marginTop="15dp"
+            android:layout_below="@id/catalogNoteTitleView"
+            android:id="@+id/catalogNoteAuthorView"/>
+        <RatingBar
+            android:layout_below="@id/catalogNoteAuthorView"
+            android:layout_toRightOf="@id/catalogNoteImageView"
+            android:id="@+id/catalogNoteRatingView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="15dp"
+            android:numStars="5"
+            style="@style/Widget.AppCompat.RatingBar.Small"/>
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:id="@+id/catalogNoteCheckBox" />
+    </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1053861554536",
+    "firebase_url": "https://readingdiary666.firebaseio.com",
+    "project_id": "readingdiary666",
+    "storage_bucket": "readingdiary666.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1053861554536:android:8e4e4f52d2fe7100338edd",
+        "android_client_info": {
+          "package_name": "com.example.readingdiary"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1053861554536-j3fpm7c8561fehvcbq2dnvjs0ka83rc6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.readingdiary",
+            "certificate_hash": "fdfce04629b991740b0c4f6731df0f2d4d7130c9"
+          }
+        },
+        {
+          "client_id": "1053861554536-8ci27tdu0fansj5tp2h2q1e2i4hntdif.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAFo_DK6g1SijFgEWCc8XuA7zW4DIsIrU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1053861554536-8ci27tdu0fansj5tp2h2q1e2i4hntdif.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
